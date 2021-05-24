@@ -11,5 +11,5 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-wthor = "0.1"
+wthor = "0.2"
 ```

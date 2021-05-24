@@ -1,0 +1,84 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      create-tag:
+        description: 'If a new tag should be created and pushed'
+        required: true
+        default: true
+      publish-crate:
+        description: 'If a new version should be published to crates.io'
+        required: true
+        default: true
+
+jobs:
+  extract-info:
+    runs-on: ubuntu-latest
+    outputs:
+      crate_version: ${{ steps.info.outputs.crate_version }}
+      crate_name: ${{ steps.info.outputs.crate_name }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Extract info
+        id: info
+        # https://github.com/rust-cli/meta/issues/33
+        # Thanks ashutoshrishi!
+        run: |
+          CRATE_NAME=$(awk -F ' = ' '$1 ~ /name/ { gsub(/["]/, "", $2); printf("%s",$2) }' Cargo.toml)
+          CRATE_VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/["]/, "", $2); printf("%s",$2) }' Cargo.toml)
+          CRATE_VERSION="v${CRATE_VERSION}"
+
+          echo "Detected crate: ${CRATE_NAME}@${CRATE_VERSION}"
+
+          echo "::set-output name=crate_version::${CRATE_VERSION}"
+          echo "::set-output name=crate_name::${CRATE_NAME}"
+
+  push-tag:
+    needs: extract-info
+    runs-on: ubuntu-latest
+    outputs:
+      version_tag: ${{ steps.tag.outputs.version_tag }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create and push new tag
+        id: tag
+        # https://github.com/rust-cli/meta/issues/33
+        # Thanks ashutoshrishi!
+        run: |
+          VERSION=${{needs.extract-info.outputs.crate_version}}
+
+          if [[ "${{ github.event.inputs.create-tag }}" == "true" ]]
+          then
+            echo "Creating tag: ${VERSION}"
+            git config --global user.name '${{ secrets.GIT_USERNAME }}'
+            git config --global user.email '${{ secrets.GIT_EMAIL }}'
+            git tag -a ${VERSION} -m ''
+            git push origin refs/tags/${VERSION}
+          elif [[ "${{ github.event.inputs.create-tag }}" == "false" ]]
+          then
+            echo "Skipping creation of new tag"
+          else
+            echo "Invalid value: create-tag: ${{ github.event.inputs.create-tag }}"
+            echo "Aborting"
+            exit 1
+          fi
+
+          echo "::set-output name=version_tag::${VERSION}"
+
+  publish:
+    if: ${{ github.event.inputs.publish-crate == 'true' }}
+    needs: push-tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Publish to crates.io
+        run: cargo publish --token $SECRET_TOKEN
+        env:
+          SECRET_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}

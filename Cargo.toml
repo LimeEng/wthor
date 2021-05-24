@@ -1,0 +1,20 @@
+[package]
+name = "wthor"
+version = "0.1.0"
+authors = ["Emil Englesson <englesson.emil@gmail.com>"]
+edition = "2018"
+description = "Parser for WTHOR files"
+repository = "https://github.com/LimeEng/wthor/"
+license = "MIT"
+keywords = ["othello", "reversi", "wthor"]
+categories = ["encoding", "parser-implementations"]
+
+exclude = [
+    ".github/**"
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+magpie = {version = "0.9", features = ["serde"]}
+serde = { version = "1.0", features = ["derive"] }

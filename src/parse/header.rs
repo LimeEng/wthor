@@ -1,5 +1,6 @@
-use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 const HEADER_LENGTH: usize = 16;
 
@@ -57,7 +58,8 @@ pub enum HeaderError {
     InvalidP2Record,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug)]
 pub struct Header {
     pub file_creation_date: FileCreationDate,
     pub n1: u32,
@@ -68,7 +70,8 @@ pub struct Header {
     pub p3: u8,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug)]
 pub struct FileCreationDate {
     pub century: u8,
     pub year: u8,
@@ -76,7 +79,8 @@ pub struct FileCreationDate {
     pub day: u8,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug)]
 pub enum BoardSize {
     EightSquared,
     TenSquared,

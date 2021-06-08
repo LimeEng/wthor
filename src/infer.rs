@@ -1,5 +1,6 @@
 use crate::parse::{Game, Position};
 use magpie::othello::{OthelloBoard, Stone};
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // Maximum number of moves a standard game of 8x8 Othello can have
@@ -58,12 +59,14 @@ impl From<magpie::othello::OthelloError> for InferError {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug)]
 pub struct OrderedGame {
     pub moves: Vec<Move>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug)]
 pub struct Move {
     pub stone: Stone,
     pub bitboard: u64,

@@ -2,8 +2,10 @@ use crate::parse::header;
 use crate::parse::header::BoardSize;
 use crate::parse::header::Header;
 use crate::parse::header::HeaderError;
-use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 const HEADER_LENGTH: usize = 16;
 
@@ -102,7 +104,8 @@ pub enum RecordError {
     InvalidMove,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug)]
 pub struct Position {
     pub rank: u8,
     pub file: u8,
@@ -120,13 +123,15 @@ impl From<HeaderError> for WthorError {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug)]
 pub struct WthorFile {
     pub header: Header,
     pub games: Vec<Game>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug)]
 pub struct Game {
     pub tournament_label_number: u16,
     pub black_player_number: u16,

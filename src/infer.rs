@@ -1,5 +1,6 @@
 use crate::parse::{Game, Position};
 use magpie::othello::{OthelloBoard, Stone};
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 

@@ -3,6 +3,7 @@ use crate::parse::header::BoardSize;
 use crate::parse::header::Header;
 use crate::parse::header::HeaderError;
 use std::convert::TryInto;
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 

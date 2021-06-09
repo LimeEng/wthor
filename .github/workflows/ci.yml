@@ -19,6 +19,10 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Empty string means no features will be enabled
+        features: ["", "--features serde"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -26,8 +30,8 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - name: Run tests
-        run: cargo test --verbose
+      - name: Run tests ${{ matrix.features }}
+        run: cargo test --verbose ${{ matrix.features }}
 
   fmt:
     name: fmt

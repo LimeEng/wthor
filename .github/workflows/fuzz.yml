@@ -1,0 +1,49 @@
+name: Fuzz
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fuzz-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.fuzz-targets.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+      - name: Detect targets
+        id: fuzz-targets
+        # jq lines to array: https://github.com/stedolan/jq/issues/563
+        run: |
+          cargo fuzz list > fuzz_targets.txt
+          TARGETS=$(jq --raw-input --compact-output --slurp 'split("\n") | map(select(. != ""))' fuzz_targets.txt)
+          MATRIX=$(echo "{\"targets\":${TARGETS}}")
+          echo "Detected targets: ${TARGETS}"
+          echo "Constructed matrix: ${MATRIX}"
+          echo "::set-output name=matrix::${MATRIX}"
+
+  fuzz:
+    needs: fuzz-targets
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.fuzz-targets.outputs.matrix)}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+      - name: "Fuzz-target: ${{ matrix.targets }}"
+        # -max_total_time=18000 (5h)
+        run: cargo fuzz run ${{ matrix.targets }} -- -max_total_time=18000 -print_final_stats -print_coverage

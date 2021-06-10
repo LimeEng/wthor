@@ -1,5 +1,6 @@
 ![CI status](https://github.com/LimeEng/wthor/workflows/CI/badge.svg)
 [![Latest version](https://img.shields.io/crates/v/wthor.svg)](https://crates.io/crates/wthor)
+![Fuzz status](https://github.com/LimeEng/wthor/workflows/Fuzz/badge.svg)
 
 # Wthor
 

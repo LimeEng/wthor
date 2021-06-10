@@ -1,2 +1,4 @@
 pub mod infer;
-pub mod parse;
+mod parse;
+
+pub use parse::*;

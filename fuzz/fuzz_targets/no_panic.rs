@@ -1,7 +1,7 @@
 #![no_main]
 use libfuzzer_sys::fuzz_target;
-use wthor::parse::parse;
+use wthor;
 
 fuzz_target!(|data: &[u8]| {
-    let _ = parse(data);
+    let _ = wthor::parse(data);
 });

@@ -1,3 +1,4 @@
+use crate::parse::constants::{VALID_10X10_MOVES, VALID_8X8_MOVES};
 use crate::parse::header;
 use crate::parse::header::BoardSize;
 use crate::parse::header::Header;
@@ -10,22 +11,29 @@ use serde::{Deserialize, Serialize};
 const HEADER_LENGTH: usize = 16;
 
 pub fn parse(bytes: &[u8]) -> Result<WthorFile, WthorError> {
+    if bytes.len() < HEADER_LENGTH {
+        return Err(WthorError::MissingHeader);
+    }
     let header_bytes = &bytes[..HEADER_LENGTH];
-    let games_bytes = &bytes[HEADER_LENGTH..];
 
     let header = header::parse_header(header_bytes)?;
-    if header.is_solitaire {
-        return Err(WthorError::SolitaireNotSupported);
+    if header.is_solitaire || bytes.len() == HEADER_LENGTH {
+        return Ok(WthorFile {
+            header,
+            games: None,
+        });
     }
+    let games_bytes = &bytes[HEADER_LENGTH..];
 
     let games = parse_games(&header, games_bytes)?;
+    let games = Some(games);
 
     Ok(WthorFile { header, games })
 }
 
 fn parse_games(header: &Header, games_bytes: &[u8]) -> Result<Vec<Game>, WthorError> {
-    let predicated_size = header.n1 * header.board_size.record_size_in_bytes() as u32;
-    if predicated_size != games_bytes.len() as u32 {
+    let predicated_size = header.n1 as u64 * header.board_size.record_size_in_bytes() as u64;
+    if predicated_size != games_bytes.len() as u64 {
         return Err(WthorError::Header(HeaderError::InvalidN1Record));
     }
 
@@ -74,14 +82,14 @@ fn parse_game(header: &Header, game: &[u8]) -> Result<Game, WthorError> {
 fn decode_move(header: &Header, byte: u8) -> Result<Position, WthorError> {
     match header.board_size {
         BoardSize::EightSquared => match byte {
-            11..=88 => Ok(Position {
+            byte if VALID_8X8_MOVES.contains(&byte) => Ok(Position {
                 rank: (byte / 10) - 1,
                 file: (byte % 10) - 1,
             }),
             _ => Err(WthorError::Record(RecordError::InvalidMove)),
         },
         BoardSize::TenSquared => match byte {
-            13..=130 => Ok(Position {
+            byte if VALID_10X10_MOVES.contains(&byte) => Ok(Position {
                 rank: (byte / 12) - 1,
                 file: (byte % 12) - 1,
             }),
@@ -95,7 +103,7 @@ pub enum WthorError {
     IoError(std::io::Error),
     Header(HeaderError),
     Record(RecordError),
-    SolitaireNotSupported,
+    MissingHeader,
 }
 
 #[derive(Debug)]
@@ -127,7 +135,7 @@ impl From<HeaderError> for WthorError {
 #[derive(Clone, Debug)]
 pub struct WthorFile {
     pub header: Header,
-    pub games: Vec<Game>,
+    pub games: Option<Vec<Game>>,
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

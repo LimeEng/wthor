@@ -1,5 +1,3 @@
-use std::convert::TryInto;
-
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 

@@ -3,7 +3,6 @@ use crate::parse::header;
 use crate::parse::header::BoardSize;
 use crate::parse::header::Header;
 use crate::parse::header::HeaderError;
-use std::convert::TryInto;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -41,7 +40,7 @@ fn parse_games(header: &Header, games_bytes: &[u8]) -> Result<Vec<Game>, WthorEr
     let step = header.board_size.record_size_in_bytes();
     for i in 0..(header.n1 - 1) {
         let start = (i as usize) * step;
-        games.push(parse_game(&header, &games_bytes[start..start + step])?);
+        games.push(parse_game(header, &games_bytes[start..start + step])?);
     }
     Ok(games)
 }
@@ -62,7 +61,7 @@ fn parse_game(header: &Header, game: &[u8]) -> Result<Game, WthorError> {
         .filter_map(|byte| {
             match byte {
                 0 => None, // No move was made, skip this entry
-                _ => Some(decode_move(&header, *byte)),
+                _ => Some(decode_move(header, *byte)),
             }
         })
         .collect();

@@ -22,7 +22,7 @@ fn infer_order(moves: &[Position]) -> Result<OrderedGame, InferError> {
     let mut inferred_moves = Vec::with_capacity(moves.len());
 
     for pos in moves {
-        let bitboard = as_bitboard(&pos)?;
+        let bitboard = as_bitboard(pos)?;
         board.place_stone(stone, bitboard)?;
         inferred_moves.push(Move {
             stone,

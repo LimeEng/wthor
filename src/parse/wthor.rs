@@ -38,7 +38,7 @@ fn parse_games(header: &Header, games_bytes: &[u8]) -> Result<Vec<Game>, WthorEr
 
     let mut games = Vec::with_capacity(header.n1 as usize);
     let step = header.board_size.record_size_in_bytes();
-    for i in 0..(header.n1 - 1) {
+    for i in 0..header.n1 {
         let start = (i as usize) * step;
         games.push(parse_game(header, &games_bytes[start..start + step])?);
     }

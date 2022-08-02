@@ -7,43 +7,45 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
+      - uses: Swatinem/rust-cache@v2
       - name: Build project
-        run: cargo build --verbose
+        run: |
+          cargo build --all-targets
+          cargo build --all-targets --features serde
 
   test:
     name: test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # Empty string means no features will be enabled
-        features: ["", "--features serde"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
-      - name: Run tests ${{ matrix.features }}
-        run: cargo test --verbose ${{ matrix.features }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        run: |
+          cargo test
+          cargo test --features serde
 
   fmt:
     name: fmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
+          components: rustfmt
+      - uses: Swatinem/rust-cache@v2
       - name: Check formatting
-        run: |
-          rustup component add rustfmt
-          cargo fmt --all -- --check
+        run: cargo fmt --all -- --check

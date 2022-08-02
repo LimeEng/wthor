@@ -30,3 +30,7 @@ Optionally, opt into using [Serde](https://serde.rs/) by enabling the feature fl
 [dependencies]
 wthor = {version = "0.5", features = ["serde"]}
 ```
+
+## Examples
+
+Examples can be [found here](/examples).

@@ -10,7 +10,9 @@ keywords = ["othello", "reversi", "wthor"]
 categories = ["encoding", "parser-implementations"]
 
 exclude = [
-    ".github/**"
+    ".github/**",
+    "wthor-database/*",
+    "spec/*",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -18,3 +20,11 @@ exclude = [
 [dependencies]
 serde = { version = "1", optional = true, features = ["derive"] }
 encoding = "0.2"
+
+[dev-dependencies]
+serde_json = "1"
+magpie = "0.9"
+
+[[example]]
+name = "serde"
+required-features = ["serde"]

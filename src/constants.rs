@@ -1,3 +1,7 @@
+pub const HEADER_LENGTH: usize = 16;
+pub const PLAYER_RECORD_SIZE: usize = 20;
+pub const TOURNAMENT_RECORD_SIZE: usize = 26;
+
 pub const VALID_8X8_MOVES: [u8; 64] = [
     11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38,
     41, 42, 43, 44, 45, 46, 47, 48, 51, 52, 53, 54, 55, 56, 57, 58, 61, 62, 63, 64, 65, 66, 67, 68,

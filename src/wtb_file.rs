@@ -1,43 +1,28 @@
-use crate::parse::constants::{VALID_10X10_MOVES, VALID_8X8_MOVES};
-use crate::parse::header;
-use crate::parse::header::BoardSize;
-use crate::parse::header::Header;
-use crate::parse::header::HeaderError;
+use crate::{
+    constants::{VALID_10X10_MOVES, VALID_8X8_MOVES},
+    header::{Header, HeaderError},
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-const HEADER_LENGTH: usize = 16;
-
-pub fn parse(bytes: &[u8]) -> Result<WthorFile, WthorError> {
-    if bytes.len() < HEADER_LENGTH {
-        return Err(WthorError::MissingHeader);
+pub(crate) fn parse(header: &Header, bytes: &[u8]) -> Result<Vec<Game>, WtbError> {
+    if header.p2 == 1 {
+        return Ok(Vec::new());
     }
-    let header_bytes = &bytes[..HEADER_LENGTH];
 
-    let header = header::parse_header(header_bytes)?;
-    if header.is_solitaire || bytes.len() == HEADER_LENGTH {
-        return Ok(WthorFile {
-            header,
-            games: None,
-        });
-    }
-    let games_bytes = &bytes[HEADER_LENGTH..];
-
-    let games = parse_games(&header, games_bytes)?;
-    let games = Some(games);
-
-    Ok(WthorFile { header, games })
+    parse_games(header, bytes)
 }
 
-fn parse_games(header: &Header, games_bytes: &[u8]) -> Result<Vec<Game>, WthorError> {
-    let predicated_size = header.n1 as u64 * header.board_size.record_size_in_bytes() as u64;
+fn parse_games(header: &Header, games_bytes: &[u8]) -> Result<Vec<Game>, WtbError> {
+    let predicated_size =
+        u64::from(header.n1) * p1_to_board_size(header.p1).record_size_in_bytes() as u64;
     if predicated_size != games_bytes.len() as u64 {
-        return Err(WthorError::Header(HeaderError::InvalidN1Record));
+        return Err(WtbError::Header(HeaderError::InvalidN1Value));
     }
 
     let mut games = Vec::with_capacity(header.n1 as usize);
-    let step = header.board_size.record_size_in_bytes();
+    let step = p1_to_board_size(header.p1).record_size_in_bytes();
     for i in 0..header.n1 {
         let start = (i as usize) * step;
         games.push(parse_game(header, &games_bytes[start..start + step])?);
@@ -45,9 +30,9 @@ fn parse_games(header: &Header, games_bytes: &[u8]) -> Result<Vec<Game>, WthorEr
     Ok(games)
 }
 
-fn parse_game(header: &Header, game: &[u8]) -> Result<Game, WthorError> {
-    if header.board_size.record_size_in_bytes() != game.len() {
-        return Err(WthorError::Record(RecordError::InvalidSize));
+fn parse_game(header: &Header, game: &[u8]) -> Result<Game, WtbError> {
+    if p1_to_board_size(header.p1).record_size_in_bytes() != game.len() {
+        return Err(WtbError::Record(RecordError::InvalidSize));
     }
 
     let tournament_label_number = u16::from_le_bytes(game[0..2].try_into().unwrap());
@@ -56,7 +41,7 @@ fn parse_game(header: &Header, game: &[u8]) -> Result<Game, WthorError> {
     let real_score = *game.get(6).unwrap();
     let theoretical_score = *game.get(7).unwrap();
 
-    let moves: Result<Vec<Position>, WthorError> = game[8..]
+    let moves: Result<Vec<Position>, WtbError> = game[8..]
         .iter()
         .filter_map(|byte| {
             match byte {
@@ -78,27 +63,36 @@ fn parse_game(header: &Header, game: &[u8]) -> Result<Game, WthorError> {
     })
 }
 
-fn decode_move(header: &Header, byte: u8) -> Result<Position, WthorError> {
-    match header.board_size {
+fn decode_move(header: &Header, byte: u8) -> Result<Position, WtbError> {
+    match p1_to_board_size(header.p1) {
         BoardSize::EightSquared => match byte {
             byte if VALID_8X8_MOVES.contains(&byte) => Ok(Position {
                 rank: (byte / 10) - 1,
                 file: (byte % 10) - 1,
             }),
-            _ => Err(WthorError::Record(RecordError::InvalidMove)),
+            _ => Err(WtbError::Record(RecordError::InvalidMove)),
         },
         BoardSize::TenSquared => match byte {
             byte if VALID_10X10_MOVES.contains(&byte) => Ok(Position {
                 rank: (byte / 12) - 1,
                 file: (byte % 12) - 1,
             }),
-            _ => Err(WthorError::Record(RecordError::InvalidMove)),
+            _ => Err(WtbError::Record(RecordError::InvalidMove)),
         },
     }
 }
 
+fn p1_to_board_size(p1: u8) -> BoardSize {
+    // The header should have been checked to be valid earlier
+    match p1 {
+        0 | 8 => BoardSize::EightSquared,
+        10 => BoardSize::TenSquared,
+        _ => panic!("Unsupported board size"),
+    }
+}
+
 #[derive(Debug)]
-pub enum WthorError {
+pub enum WtbError {
     IoError(std::io::Error),
     Header(HeaderError),
     Record(RecordError),
@@ -118,21 +112,21 @@ pub struct Position {
     pub file: u8,
 }
 
-impl From<std::io::Error> for WthorError {
+impl From<std::io::Error> for WtbError {
     fn from(error: std::io::Error) -> Self {
-        WthorError::IoError(error)
+        WtbError::IoError(error)
     }
 }
 
-impl From<HeaderError> for WthorError {
+impl From<HeaderError> for WtbError {
     fn from(error: HeaderError) -> Self {
-        WthorError::Header(error)
+        WtbError::Header(error)
     }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct WthorFile {
+pub struct WtbFile {
     pub header: Header,
     pub games: Option<Vec<Game>>,
 }
@@ -146,4 +140,20 @@ pub struct Game {
     pub real_score: u8,
     pub theoretical_score: u8,
     pub moves: Vec<Position>,
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum BoardSize {
+    EightSquared,
+    TenSquared,
+}
+
+impl BoardSize {
+    pub(crate) fn record_size_in_bytes(&self) -> usize {
+        match &self {
+            BoardSize::EightSquared => 68,
+            BoardSize::TenSquared => 104,
+        }
+    }
 }

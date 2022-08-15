@@ -93,10 +93,8 @@ fn p1_to_board_size(p1: u8) -> BoardSize {
 
 #[derive(Debug)]
 pub enum WtbError {
-    IoError(std::io::Error),
     Header(HeaderError),
     Record(RecordError),
-    MissingHeader,
 }
 
 #[derive(Debug)]
@@ -110,12 +108,6 @@ pub enum RecordError {
 pub struct Position {
     pub rank: u8,
     pub file: u8,
-}
-
-impl From<std::io::Error> for WtbError {
-    fn from(error: std::io::Error) -> Self {
-        WtbError::IoError(error)
-    }
 }
 
 impl From<HeaderError> for WtbError {

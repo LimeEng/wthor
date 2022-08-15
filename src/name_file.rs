@@ -44,7 +44,6 @@ pub(crate) fn parse(
 
 #[derive(Debug)]
 pub enum NameFileError {
-    IoError(std::io::Error),
     InvalidN1Value,
     InvalidN2Value,
     InvalidP1Value,
@@ -53,12 +52,6 @@ pub enum NameFileError {
     RecordNotNullTerminated,
     InvalidRecord(Utf8Error),
     EncodingNotIso8859_1,
-}
-
-impl From<std::io::Error> for NameFileError {
-    fn from(error: std::io::Error) -> Self {
-        NameFileError::IoError(error)
-    }
 }
 
 impl From<Utf8Error> for NameFileError {

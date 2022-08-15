@@ -7,10 +7,14 @@ use crate::{
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+/// Parses bytes into one of three representations.
+///
+/// If a solitaire file is detected only the header will be returned.
 pub fn parse(bytes: &[u8]) -> Result<WthorFile, WthorError> {
     if bytes.len() < HEADER_LENGTH {
         // Will return an error
         header::parse(bytes)?;
+        unreachable!()
     }
     let header_bytes = &bytes[..HEADER_LENGTH];
     let header = header::parse(header_bytes)?;
@@ -42,25 +46,21 @@ pub fn parse(bytes: &[u8]) -> Result<WthorFile, WthorError> {
     // or tournaments.
     let tournaments = name_file::parse(TOURNAMENT_RECORD_SIZE, &header, bytes);
     if let Ok(tournaments) = tournaments {
-        return Ok(WthorFile {
+        Ok(WthorFile {
             header,
             games: None,
             tournaments: Some(tournaments),
             players: None,
-        });
-    }
-
-    let players = name_file::parse(PLAYER_RECORD_SIZE, &header, bytes);
-    if let Ok(players) = players {
-        return Ok(WthorFile {
+        })
+    } else {
+        let players = name_file::parse(PLAYER_RECORD_SIZE, &header, bytes)?;
+        Ok(WthorFile {
             header,
             games: None,
             tournaments: None,
             players: Some(players),
-        });
+        })
     }
-
-    Err(WthorError::InvalidFormat)
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -77,7 +77,6 @@ pub enum WthorError {
     Header(header::HeaderError),
     WtbFile(wtb_file::WtbError),
     NameFile(name_file::NameFileError),
-    InvalidFormat,
 }
 
 impl From<header::HeaderError> for WthorError {

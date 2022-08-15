@@ -30,7 +30,10 @@ fn main() -> Result<(), Error> {
                 results
             });
 
-    println!("{:#?}", results);
+    println!("Wins by color among all games in 2004");
+    println!("Black: {}", results.black_wins);
+    println!("White: {}", results.white_wins);
+    println!("Draws: {}", results.draws);
     Ok(())
 }
 

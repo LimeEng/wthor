@@ -3,7 +3,7 @@
 ## Extract information
 
 ```
-cargo run --example serde extract_info
+cargo run --example extract_info
 ```
 
 Running this example will display what tournaments a specific player participated in. It specifically showcases the relationship between the different types of files this library can parse. 
@@ -11,7 +11,7 @@ Running this example will display what tournaments a specific player participate
 ## Count wins by color
 
 ```
-cargo run --example serde wins_by_color
+cargo run --example wins_by_color
 ```
 
 This example counts the number of wins by color and displays the result. It uses an external Othello library to step through the moves in each game to determine the winner.

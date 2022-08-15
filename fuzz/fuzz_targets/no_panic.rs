@@ -3,5 +3,5 @@ use libfuzzer_sys::fuzz_target;
 use wthor;
 
 fuzz_target!(|data: &[u8]| {
-    let _ = wthor::parse(data);
+    let _result = wthor::parse(data);
 });

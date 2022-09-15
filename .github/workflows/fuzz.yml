@@ -33,6 +33,7 @@ jobs:
     needs: fuzz-targets
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.fuzz-targets.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
@@ -46,4 +47,4 @@ jobs:
         run: cargo install cargo-fuzz
       - name: "Fuzz-target: ${{ matrix.targets }}"
         # -max_total_time=18000 (5h)
-        run: cargo fuzz run ${{ matrix.targets }} -- -max_total_time=18000 -print_final_stats -print_coverage
+        run: cargo fuzz run ${{ matrix.targets }} -- -max_total_time=18000 -print_final_stats

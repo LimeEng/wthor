@@ -48,7 +48,7 @@ fn calculate_winner(game: &wthor::Game) -> Option<Stone> {
         .collect();
 
     for pos in positions {
-        board.place_stone(stone, pos).unwrap();
+        board.play(stone, pos);
         if !board.moves_for(stone.flip()).is_empty() {
             stone = stone.flip();
         }

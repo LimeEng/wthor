@@ -31,13 +31,10 @@ fn main() -> Result<(), Error> {
 
     let player = players[player_index as usize].clone();
 
-    println!(
-        "{} participated in the following tournaments in 2004:",
-        player
-    );
+    println!("{player} participated in the following tournaments in 2004:");
     println!("=====");
     for tournament in tournaments {
-        println!("{}", tournament);
+        println!("{tournament}");
     }
     Ok(())
 }

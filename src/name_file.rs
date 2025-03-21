@@ -1,5 +1,5 @@
 use crate::header::Header;
-use encoding::{all::ISO_8859_1, DecoderTrap, Encoding};
+use encoding::{DecoderTrap, Encoding, all::ISO_8859_1};
 use std::str::Utf8Error;
 
 pub(crate) fn parse(

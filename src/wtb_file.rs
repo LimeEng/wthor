@@ -1,5 +1,5 @@
 use crate::{
-    constants::{VALID_10X10_MOVES, VALID_8X8_MOVES},
+    constants::{VALID_8X8_MOVES, VALID_10X10_MOVES},
     header::{Header, HeaderError},
 };
 

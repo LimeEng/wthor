@@ -9,13 +9,9 @@ jobs:
     outputs:
       matrix: ${{ steps.fuzz-targets.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
+        uses: dtolnay/rust-toolchain@nightly
       - name: Install cargo-fuzz
         run: cargo install cargo-fuzz
       - name: Detect targets
@@ -27,7 +23,7 @@ jobs:
           MATRIX=$(echo "{\"targets\":${TARGETS}}")
           echo "Detected targets: ${TARGETS}"
           echo "Constructed matrix: ${MATRIX}"
-          echo "::set-output name=matrix::${MATRIX}"
+          echo "matrix=${MATRIX}" >> $GITHUB_OUTPUT
 
   fuzz:
     needs: fuzz-targets
@@ -36,13 +32,9 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.fuzz-targets.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
+        uses: dtolnay/rust-toolchain@nightly
       - name: Install cargo-fuzz
         run: cargo install cargo-fuzz
       - name: "Fuzz-target: ${{ matrix.targets }}"

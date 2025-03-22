@@ -27,13 +27,10 @@
 //! wthor = {version = "0.5", features = ["serde"]}
 //! ```
 
-mod constants;
+pub mod game_archive;
 mod header;
-mod name_file;
-mod wtb_file;
+pub mod records;
 mod wthor;
 
-pub use self::wthor::{WthorError, WthorFile, parse};
-pub use header::{FileCreationDate, Header, HeaderError};
-pub use name_file::NameFileError;
-pub use wtb_file::{Game, Position, RecordError, WtbError, WtbFile};
+pub use self::wthor::{Error, parse};
+pub use header::CreationDate;

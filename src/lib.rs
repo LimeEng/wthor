@@ -12,20 +12,14 @@
 //!
 //! Solitaire files are currently not supported.
 //!
-//! ## Usage
+//! ## Installation
 //!
-//! Add this to your `Cargo.toml`:
-//!
-//! ```toml
-//! [dependencies]
-//! wthor = "0.5"
+//! ```sh
+//! cargo add wthor
+//! # If serialization with Serde is desired, activate the serde feature flag.
+//! cargo add wthor -F serde
 //! ```
 //!
-//! Optionally, opt into using [Serde](https://serde.rs/) by enabling the feature flag `serde`.
-//! ```toml
-//! [dependencies]
-//! wthor = {version = "0.5", features = ["serde"]}
-//! ```
 
 pub mod game_archive;
 mod header;

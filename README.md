@@ -19,9 +19,9 @@ Solitaire files are currently not supported.
 ## Installation
 
 ```sh
-cargo add magpie
+cargo add wthor
 # If serialization with Serde is desired, activate the serde feature flag.
-cargo add magpie -F serde
+cargo add wthor -F serde
 ```
 
 ## Examples

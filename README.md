@@ -1,6 +1,6 @@
-![CI status](https://github.com/LimeEng/wthor/workflows/CI/badge.svg)
-[![Latest version](https://img.shields.io/crates/v/wthor.svg)](https://crates.io/crates/wthor)
-![Fuzz status](https://github.com/LimeEng/wthor/workflows/Fuzz/badge.svg)
+[![CI](https://github.com/LimeEng/wthor/actions/workflows/ci.yaml/badge.svg)](https://github.com/LimeEng/wthor/actions/workflows/ci.yaml)
+[![Latest version](https://img.shields.io/crates/v/wthor?color=blue)](https://crates.io/crates/wthor)
+[![Fuzz](https://github.com/LimeEng/wthor/actions/workflows/fuzz.yaml/badge.svg)](https://github.com/LimeEng/wthor/actions/workflows/fuzz.yaml)
 
 # Wthor
 

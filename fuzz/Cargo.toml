@@ -19,7 +19,13 @@ path = ".."
 members = ["."]
 
 [[bin]]
-name = "no_panic"
-path = "fuzz_targets/no_panic.rs"
+name = "no_panic_game_archive"
+path = "fuzz_targets/no_panic_game_archive.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "no_panic_records"
+path = "fuzz_targets/no_panic_records.rs"
 test = false
 doc = false

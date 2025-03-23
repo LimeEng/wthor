@@ -1,6 +1,6 @@
-![CI status](https://github.com/LimeEng/wthor/workflows/CI/badge.svg)
-[![Latest version](https://img.shields.io/crates/v/wthor.svg)](https://crates.io/crates/wthor)
-![Fuzz status](https://github.com/LimeEng/wthor/workflows/Fuzz/badge.svg)
+[![CI status](https://github.com/LimeEng/wthor/actions/workflows/ci.yaml/badge.svg)](https://github.com/LimeEng/wthor/actions/workflows/ci.yaml)
+[![Latest version](https://img.shields.io/crates/v/wthor?color=blue)](https://crates.io/crates/wthor)
+[![Fuzz status](https://github.com/LimeEng/wthor/actions/workflows/fuzz.yaml/badge.svg)](https://github.com/LimeEng/wthor/actions/workflows/fuzz.yaml)
 
 # Wthor
 
@@ -16,21 +16,14 @@ Three types of Wthor files can be parsed as of now. They commonly have the exten
 
 Solitaire files are currently not supported.
 
-## Usage
+## Installation
 
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-wthor = "0.5"
-```
-
-Optionally, opt into using [Serde](https://serde.rs/) by enabling the feature flag `serde`.
-```toml
-[dependencies]
-wthor = {version = "0.5", features = ["serde"]}
+```sh
+cargo add magpie
+# If serialization with Serde is desired, activate the serde feature flag.
+cargo add magpie -F serde
 ```
 
 ## Examples
 
-Examples can be [found here](/examples).
+Examples are [described here](/examples).

@@ -1,6 +1,5 @@
 use magpie::othello::{Board, Position, Stone};
 use std::{cmp::Ordering, convert::TryFrom};
-use wthor::WthorError;
 
 #[derive(Debug, Default)]
 struct GameResults {
@@ -9,35 +8,31 @@ struct GameResults {
     draws: u64,
 }
 
-fn main() -> Result<(), WthorError> {
+fn main() {
     let games = include_bytes!("../wthor-database/WTH_2004.wtb");
-    let games = wthor::parse(games)?
-        .games
-        .expect("Unexpected parsing error");
+    let games = wthor::parse::<wthor::game_archive::GameArchive>(games).unwrap();
 
-    let results =
-        games
-            .iter()
-            .map(calculate_winner)
-            .fold(GameResults::default(), |mut results, winner| {
-                match winner {
-                    Some(winner) => match winner {
-                        Stone::Black => results.black_wins += 1,
-                        Stone::White => results.white_wins += 1,
-                    },
-                    None => results.draws += 1,
-                };
-                results
-            });
+    let results = games.games.iter().map(calculate_winner).fold(
+        GameResults::default(),
+        |mut results, winner| {
+            match winner {
+                Some(winner) => match winner {
+                    Stone::Black => results.black_wins += 1,
+                    Stone::White => results.white_wins += 1,
+                },
+                None => results.draws += 1,
+            };
+            results
+        },
+    );
 
     println!("Wins by color among all games in 2004");
     println!("Black: {}", results.black_wins);
     println!("White: {}", results.white_wins);
     println!("Draws: {}", results.draws);
-    Ok(())
 }
 
-fn calculate_winner(game: &wthor::Game) -> Option<Stone> {
+fn calculate_winner(game: &wthor::game_archive::Game) -> Option<Stone> {
     let mut board = Board::standard();
     let mut stone = Stone::Black;
 
@@ -48,7 +43,7 @@ fn calculate_winner(game: &wthor::Game) -> Option<Stone> {
         .collect();
 
     for pos in positions {
-        board.place_stone(stone, pos).unwrap();
+        board.play(stone, pos);
         if !board.moves_for(stone.flip()).is_empty() {
             stone = stone.flip();
         }

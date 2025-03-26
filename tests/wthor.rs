@@ -1,4 +1,5 @@
 use magpie::othello::{Board, Position, Stone};
+use wthor::game_archive::{GameArchive, Game};
 use std::{cmp::Ordering, fs};
 
 // macro_rules! move_order_test {
@@ -24,14 +25,10 @@ use std::{cmp::Ordering, fs};
 
 #[test]
 fn test_move_order() {
-    let years = vec![
-        1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991,
-        1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
-        2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021,
-    ];
+    let years = 1977..=2021;
 
     for year in years {
-        let file_name = format!("wthor-database/WTH_{}.wtb", year);
+        let file_name = format!("wthor-database/WTH_{year}.wtb");
         println!("{file_name}");
         let bytes = fs::read(file_name).unwrap();
         test_move_order_inner(&bytes);
@@ -39,20 +36,19 @@ fn test_move_order() {
 }
 
 fn test_move_order_inner(bytes: &[u8]) {
-    let file = wthor::parse(bytes).unwrap();
-    let games = file.games.expect("Unexpected parsing error");
-    for game in games {
+    let file = wthor::parse::<GameArchive>(bytes).unwrap();
+    for game in file.games {
         let score = calculate_score(&game);
         // if score != game.real_score as u32 {
         //     println!("Actual: {}", score);
         //     println!("Expected: {}", game.real_score);
         //     // assert!(false);
         // }
-        assert_eq!(score, game.real_score as u32);
+        assert_eq!(score, u32::from(game.real_score));
     }
 }
 
-fn calculate_score(game: &wthor::Game) -> u32 {
+fn calculate_score(game: &Game) -> u32 {
     let mut board = Board::standard();
     let mut stone = Stone::Black;
 
@@ -63,7 +59,7 @@ fn calculate_score(game: &wthor::Game) -> u32 {
         .collect();
 
     for pos in positions {
-        board.place_stone(stone, pos).unwrap();
+        board.play(stone, pos);
         if !board.moves_for(stone.flip()).is_empty() {
             stone = stone.flip();
         }
@@ -99,7 +95,7 @@ fn debug_board(title: &str, board: u64) {
         }
     };
 
-    println!("{}", title);
+    println!("{title}");
     println!("   ABCDEFGH");
     println!("  +--------+");
     for rank in 0..8 {

@@ -8,12 +8,12 @@ use crate::{
     wthor::Error,
 };
 
-/// An archive with type-level state indicating whether it has indexed or named games
+/// An archive with type-level meta indicating whether it has indexed or named games
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct Archive<State> {
+pub struct Archive<Meta> {
     pub metadata: Metadata,
-    pub games: Vec<Game<State>>,
+    pub games: Vec<Game<Meta>>,
 }
 
 impl Archive<Indexed> {

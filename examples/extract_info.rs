@@ -11,21 +11,27 @@ fn main() -> Result<(), Error> {
         .tournaments(tournaments)
         .build()?;
 
+    let player = "Nicolet Stephane";
+
+    let players: HashSet<_> = archive
+        .games
+        .iter()
+        .flat_map(|t| vec![t.meta.black_player.clone(), t.meta.white_player.clone()])
+        .collect();
+    let mut players: Vec<_> = players.iter().cloned().collect();
+    players.sort();
+    for player in players {
+        println!("{player}");
+    }
+
     let player_tournaments: HashSet<String> = archive
         .games
         .iter()
         .filter(|game| {
-            // Access indices from the Named state (though we're looking at the resolved names)
-            // In this case we'd need to track the original indices differently
-            // For now, let's just show all tournaments this player participated in
-            game.state.black_player.contains("Ben Seeley")
-                || game.state.white_player.contains("Ben Seeley")
+            game.meta.black_player.contains(player) || game.meta.white_player.contains(player)
         })
-        .map(|game| game.state.tournament.clone())
+        .map(|game| game.meta.tournament.clone())
         .collect();
-
-    // The player at index 15 is Ben Seeley
-    let player = "Ben Seeley";
 
     println!("{player} participated in the following tournaments in 2004:");
     println!("=====");
@@ -39,7 +45,6 @@ fn main() -> Result<(), Error> {
 pub enum Error {
     Wthor(wthor::Error),
     Json(serde_json::Error),
-    // OptionWasNone,
 }
 
 impl From<wthor::Error> for Error {
@@ -53,9 +58,3 @@ impl From<serde_json::Error> for Error {
         Error::Json(error)
     }
 }
-
-// impl<T> From<Option<T>> for Error {
-//     fn from(_: Option<T>) -> Self {
-//         Error::OptionWasNone
-//     }
-// }

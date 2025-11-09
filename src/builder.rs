@@ -5,50 +5,50 @@ use crate::{
     wthor::{Error, WthorFile},
 };
 
-// State markers
-pub struct NoNames;
-pub struct WithNames;
+// Meta markers
+pub struct Indices;
+pub struct Names;
 
 #[allow(clippy::struct_field_names)]
-pub struct ArchiveBuilder<'a, State> {
+pub struct ArchiveBuilder<'a, Meta> {
     game_bytes: &'a [u8],
     player_bytes: Option<&'a [u8]>,
     tournament_bytes: Option<&'a [u8]>,
-    _state: std::marker::PhantomData<State>,
+    _meta: std::marker::PhantomData<Meta>,
 }
 
 #[must_use]
-pub fn parse(bytes: &[u8]) -> ArchiveBuilder<'_, NoNames> {
+pub fn parse(bytes: &[u8]) -> ArchiveBuilder<'_, Indices> {
     ArchiveBuilder {
         game_bytes: bytes,
         player_bytes: None,
         tournament_bytes: None,
-        _state: std::marker::PhantomData,
+        _meta: std::marker::PhantomData,
     }
 }
 
-impl<'a> ArchiveBuilder<'a, NoNames> {
+impl<'a> ArchiveBuilder<'a, Indices> {
     /// Add both player and tournament data at once
     pub fn with_names(
         self,
         players: &'a [u8],
         tournaments: &'a [u8],
-    ) -> ArchiveBuilder<'a, WithNames> {
+    ) -> ArchiveBuilder<'a, Names> {
         ArchiveBuilder {
             game_bytes: self.game_bytes,
             player_bytes: Some(players),
             tournament_bytes: Some(tournaments),
-            _state: std::marker::PhantomData,
+            _meta: std::marker::PhantomData,
         }
     }
 
     /// Add player data
-    pub fn players(self, bytes: &'a [u8]) -> ArchiveBuilder<'a, WithNames> {
+    pub fn players(self, bytes: &'a [u8]) -> ArchiveBuilder<'a, Names> {
         ArchiveBuilder {
             game_bytes: self.game_bytes,
             player_bytes: Some(bytes),
             tournament_bytes: self.tournament_bytes,
-            _state: std::marker::PhantomData,
+            _meta: std::marker::PhantomData,
         }
     }
 
@@ -59,7 +59,7 @@ impl<'a> ArchiveBuilder<'a, NoNames> {
     }
 }
 
-impl<'a> ArchiveBuilder<'a, WithNames> {
+impl<'a> ArchiveBuilder<'a, Names> {
     /// Add tournament data (after players were added)
     pub fn tournaments(mut self, bytes: &'a [u8]) -> Self {
         self.tournament_bytes = Some(bytes);

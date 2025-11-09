@@ -51,8 +51,8 @@ impl Archive<Named> {
 /// A game with state that can be either Indexed or Named
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct Game<State> {
-    pub state: State,
+pub struct Game<Meta> {
+    pub meta: Meta,
     pub real_score: u8,
     pub theoretical_score: u8,
     pub moves: Vec<Position>,
@@ -79,7 +79,7 @@ pub struct Named {
 impl Game<Indexed> {
     pub(crate) fn from_raw(game: crate::game::Game) -> Self {
         Game {
-            state: Indexed {
+            meta: Indexed {
                 tournament_index: game.tournament_label_number,
                 black_player_index: game.black_player_number,
                 white_player_index: game.white_player_number,
@@ -116,7 +116,7 @@ impl Game<Named> {
             .clone();
 
         Ok(Game {
-            state: Named {
+            meta: Named {
                 tournament,
                 black_player,
                 white_player,

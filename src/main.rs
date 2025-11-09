@@ -34,9 +34,9 @@ fn example_with_names() {
     println!("\nFirst 3 games:");
     for (i, game) in archive.games.iter().take(3).enumerate() {
         println!("\nGame {}:", i + 1);
-        println!("  Tournament: {}", game.state.tournament);
-        println!("  Black: {}", game.state.black_player);
-        println!("  White: {}", game.state.white_player);
+        println!("  Tournament: {}", game.meta.tournament);
+        println!("  Black: {}", game.meta.black_player);
+        println!("  White: {}", game.meta.white_player);
         println!("  Score: {}", game.real_score);
         println!("  Moves: {}", game.moves.len());
     }
@@ -55,9 +55,9 @@ fn example_indexed_only() {
     // Access games directly
     if let Some(game) = archive.games.first() {
         println!("First game:");
-        println!("  Tournament index: {}", game.state.tournament_index);
-        println!("  Black player index: {}", game.state.black_player_index);
-        println!("  White player index: {}", game.state.white_player_index);
+        println!("  Tournament index: {}", game.meta.tournament_index);
+        println!("  Black player index: {}", game.meta.black_player_index);
+        println!("  White player index: {}", game.meta.white_player_index);
         println!("  Score: {}", game.real_score);
     }
 }

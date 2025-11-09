@@ -99,19 +99,19 @@ impl Game<Named> {
     ) -> Result<Self, Error> {
         let tournament = tournaments
             .names
-            .get((game.tournament_label_number - 1) as usize)
+            .get(game.tournament_label_number.saturating_sub(1) as usize)
             .ok_or(Error::InvalidTournamentIndex)?
             .clone();
 
         let black_player = players
             .names
-            .get((game.black_player_number - 1) as usize)
+            .get(game.black_player_number.saturating_sub(1) as usize)
             .ok_or(Error::InvalidPlayerIndex)?
             .clone();
 
         let white_player = players
             .names
-            .get((game.white_player_number - 1) as usize)
+            .get(game.white_player_number.saturating_sub(1) as usize)
             .ok_or(Error::InvalidPlayerIndex)?
             .clone();
 

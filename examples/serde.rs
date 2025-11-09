@@ -1,21 +1,25 @@
-use wthor::{game_archive::GameArchive, records::Records};
-
 fn main() -> Result<(), Error> {
     let game_archive = include_bytes!("../wthor-database/WTH_1977.wtb");
     let players = include_bytes!("../wthor-database/WTHOR.JOU");
     let tournaments = include_bytes!("../wthor-database/WTHOR.TRN");
 
-    let game_archive = wthor::parse::<GameArchive>(game_archive)?;
-    let players = wthor::parse::<Records>(players)?;
-    let tournaments = wthor::parse::<Records>(tournaments)?;
+    // Example 1: Using the new builder API with names
+    let archive_with_names = wthor::parse(game_archive)
+        .players(players)
+        .tournaments(tournaments)
+        .build()?;
 
-    let games_json = serde_json::to_string(&game_archive)?;
-    let players_json = serde_json::to_string(&players)?;
-    let tournaments_json = serde_json::to_string(&tournaments)?;
+    // Example 2: Using the builder API with just indices
+    let archive_indexed = wthor::parse(game_archive).build()?;
 
-    let _deserialized_games: GameArchive = serde_json::from_str(&games_json)?;
-    let _deserialized_players: Records = serde_json::from_str(&players_json)?;
-    let _deserialized_tournaments: Records = serde_json::from_str(&tournaments_json)?;
+    // Serialize both versions
+    let named_json = serde_json::to_string(&archive_with_names)?;
+    let indexed_json = serde_json::to_string(&archive_indexed)?;
+
+    // Deserialize them back
+    let _deserialized_named: wthor::Archive<wthor::Named> = serde_json::from_str(&named_json)?;
+    let _deserialized_indexed: wthor::Archive<wthor::Indexed> =
+        serde_json::from_str(&indexed_json)?;
 
     Ok(())
 }

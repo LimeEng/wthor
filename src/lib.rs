@@ -24,12 +24,14 @@
 mod builder;
 mod enriched;
 mod game;
-pub mod game_archive;
+mod game_archive;
 mod header;
-pub mod records;
+mod records;
 mod wthor;
 
-pub use self::wthor::Error;
 pub use builder::parse;
 pub use enriched::{Archive, Game, Indexed, Named};
+pub use game::Position;
+pub use game_archive::{BoardSize, Metadata};
 pub use header::CreationDate;
+pub use wthor::Error;

@@ -1,14 +1,18 @@
 use quickcheck_macros::quickcheck;
-use wthor::{game_archive::GameArchive, records::Records};
 
 #[quickcheck]
 #[allow(clippy::needless_pass_by_value)]
 fn no_panic_game_archive(data: Vec<u8>) {
-    let _result = wthor::parse::<GameArchive>(&data);
+    // Just test that building doesn't panic
+    let _result = wthor::parse(&data).build();
 }
 
 #[quickcheck]
 #[allow(clippy::needless_pass_by_value)]
 fn no_panic_records(data: Vec<u8>) {
-    let _result = wthor::parse::<Records>(&data);
+    // Test both players and tournaments together
+    let _result = wthor::parse(&data)
+        .players(&data)
+        .tournaments(&data)
+        .build();
 }

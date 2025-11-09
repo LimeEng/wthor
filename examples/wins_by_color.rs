@@ -10,9 +10,11 @@ struct GameResults {
 
 fn main() {
     let games = include_bytes!("../wthor-database/WTH_2004.wtb");
-    let games = wthor::parse::<wthor::game_archive::GameArchive>(games).unwrap();
 
-    let results = games.games.iter().map(calculate_winner).fold(
+    // Use the new builder API to get indexed games
+    let archive = wthor::parse(games).build().unwrap();
+
+    let results = archive.games.iter().map(calculate_winner).fold(
         GameResults::default(),
         |mut results, winner| {
             match winner {
@@ -32,7 +34,7 @@ fn main() {
     println!("Draws: {}", results.draws);
 }
 
-fn calculate_winner(game: &wthor::game_archive::Game) -> Option<Stone> {
+fn calculate_winner(game: &wthor::Game<wthor::Indexed>) -> Option<Stone> {
     let mut board = Board::standard();
     let mut stone = Stone::Black;
 

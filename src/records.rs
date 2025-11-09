@@ -13,7 +13,8 @@ const TOURNAMENT_RECORD_SIZE: usize = 26;
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct Metadata {
+#[allow(dead_code)]
+pub(crate) struct Metadata {
     pub file_creation_date: CreationDate,
 }
 
@@ -84,7 +85,8 @@ impl RecordType {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct Records {
+#[allow(dead_code)]
+pub(crate) struct Records {
     pub metadata: Metadata,
     pub names: Vec<String>,
     pub record_type: RecordType,

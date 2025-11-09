@@ -29,7 +29,11 @@ pub fn parse(bytes: &[u8]) -> ArchiveBuilder<'_, NoNames> {
 
 impl<'a> ArchiveBuilder<'a, NoNames> {
     /// Add both player and tournament data at once
-    pub fn with_names(self, players: &'a [u8], tournaments: &'a [u8]) -> ArchiveBuilder<'a, WithNames> {
+    pub fn with_names(
+        self,
+        players: &'a [u8],
+        tournaments: &'a [u8],
+    ) -> ArchiveBuilder<'a, WithNames> {
         ArchiveBuilder {
             game_bytes: self.game_bytes,
             player_bytes: Some(players),

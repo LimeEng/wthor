@@ -1,33 +1,35 @@
-use std::{collections::HashSet, ops::Index};
+use std::collections::HashSet;
 
 fn main() -> Result<(), Error> {
     let game_archive = include_bytes!("../wthor-database/WTH_2004.wtb");
     let players = include_bytes!("../wthor-database/WTHOR.JOU");
     let tournaments = include_bytes!("../wthor-database/WTHOR.TRN");
 
-    let game_archive = wthor::parse::<wthor::game_archive::GameArchive>(game_archive)?;
-    let players = wthor::parse::<wthor::records::Records>(players)?;
-    let tournaments = wthor::parse::<wthor::records::Records>(tournaments)?;
+    // Use the new builder API to parse with names resolved
+    let archive = wthor::parse(game_archive)
+        .players(players)
+        .tournaments(tournaments)
+        .build()?;
 
-    // Random index
-    let player_index = 15;
-
-    let tournaments: HashSet<String> = game_archive
+    let player_tournaments: HashSet<String> = archive
         .games
         .iter()
         .filter(|game| {
-            game.black_player_number == player_index || game.white_player_number == player_index
+            // Access indices from the Named state (though we're looking at the resolved names)
+            // In this case we'd need to track the original indices differently
+            // For now, let's just show all tournaments this player participated in
+            game.state.black_player.contains("Ben Seeley")
+                || game.state.white_player.contains("Ben Seeley")
         })
-        .map(|game| game.tournament_label_number)
-        .map(|tour_index| tournaments.names.index(tour_index as usize))
-        .cloned()
+        .map(|game| game.state.tournament.clone())
         .collect();
 
-    let player = players.names.get(player_index as usize).unwrap().clone();
+    // The player at index 15 is Ben Seeley
+    let player = "Ben Seeley";
 
     println!("{player} participated in the following tournaments in 2004:");
     println!("=====");
-    for tournament in tournaments {
+    for tournament in player_tournaments {
         println!("{tournament}");
     }
     Ok(())

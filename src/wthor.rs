@@ -1,6 +1,7 @@
 /// Parses bytes into one of three representations.
 ///
 /// If a solitaire file is detected only the header will be returned.
+#[allow(dead_code)]
 pub fn parse<W: WthorFile>(bytes: &[u8]) -> Result<W::Output, Error> {
     W::parse(bytes)
 }
@@ -25,4 +26,8 @@ pub enum Error {
     // Records errors
     RecordNotNullTerminated,
     EncodingNotIso8859_1,
+    // Builder errors
+    IncompleteNameData,
+    InvalidPlayerIndex,
+    InvalidTournamentIndex,
 }

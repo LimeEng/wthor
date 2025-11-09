@@ -21,10 +21,15 @@
 //! ```
 //!
 
+mod builder;
+mod enriched;
+mod game;
 pub mod game_archive;
 mod header;
 pub mod records;
 mod wthor;
 
-pub use self::wthor::{Error, parse};
+pub use self::wthor::Error;
+pub use builder::parse;
+pub use enriched::{Archive, Game, Indexed, Named};
 pub use header::CreationDate;

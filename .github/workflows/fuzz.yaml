@@ -9,7 +9,7 @@ jobs:
     outputs:
       matrix: ${{ steps.fuzz-targets.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install latest nightly
         uses: dtolnay/rust-toolchain@nightly
       - name: Install cargo-fuzz
@@ -32,7 +32,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.fuzz-targets.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install latest nightly
         uses: dtolnay/rust-toolchain@nightly
       - name: Install cargo-fuzz

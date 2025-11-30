@@ -23,7 +23,7 @@ fn main() {
                     Stone::White => results.white_wins += 1,
                 },
                 None => results.draws += 1,
-            };
+            }
             results
         },
     );

@@ -1,7 +1,6 @@
 [package]
 name = "wthor"
 version = "0.6.0"
-authors = ["Emil Englesson <englesson.emil@gmail.com>"]
 edition = "2024"
 description = "Parser for WTHOR files"
 repository = "https://github.com/LimeEng/wthor/"
@@ -9,20 +8,16 @@ license = "MIT"
 keywords = ["othello", "reversi", "wthor"]
 categories = ["encoding", "parser-implementations"]
 
-exclude = [
-    ".github/**",
-    "wthor-database/*",
-    "spec/*",
-]
+exclude = [".github/**", "wthor-database/*", "spec/*"]
 
 [dependencies]
 encoding = "0.2"
 serde = { version = "1.0", optional = true, features = ["derive"] }
 
 [dev-dependencies]
-magpie = "0.11"
-quickcheck = "1.0"
-quickcheck_macros = "1.0"
+magpie = "0.12"
+quickcheck = "1.1"
+quickcheck_macros = "1.2"
 serde_json = "1.0"
 
 [[example]]

@@ -2,8 +2,7 @@
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {
-    let _result = wthor::parse(data)
-        .players(data)
-        .tournaments(data)
-        .build();
+    let _result = wthor::Database::new()
+        .with_players(data)
+        .and_then(|db| db.with_tournaments(data));
 });

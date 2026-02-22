@@ -1,26 +1,16 @@
 fn main() -> Result<(), Error> {
-    let game_archive = include_bytes!("../wthor-database/WTH_1977.wtb");
-    let players = include_bytes!("../wthor-database/WTHOR.JOU");
-    let tournaments = include_bytes!("../wthor-database/WTHOR.TRN");
+    let game_bytes = include_bytes!("../wthor-database/WTH_1977.wtb");
 
-    // Example 1: Using the new builder API with names
-    let archive_with_names = wthor::parse(game_archive)
-        .players(players)
-        .tournaments(tournaments)
-        .build()?;
+    // Parse the game archive
+    let archive = wthor::parse(game_bytes)?;
 
-    // Example 2: Using the builder API with just indices
-    let archive_indexed = wthor::parse(game_archive).build()?;
+    // Serialize to JSON
+    let json = serde_json::to_string(&archive)?;
 
-    // Serialize both versions
-    let named_json = serde_json::to_string(&archive_with_names)?;
-    let indexed_json = serde_json::to_string(&archive_indexed)?;
+    // Deserialize back
+    let _deserialized: wthor::Archive = serde_json::from_str(&json)?;
 
-    // Deserialize them back
-    let _deserialized_named: wthor::Archive<wthor::Named> = serde_json::from_str(&named_json)?;
-    let _deserialized_indexed: wthor::Archive<wthor::Indexed> =
-        serde_json::from_str(&indexed_json)?;
-
+    println!("Successfully serialized and deserialized {} games", archive.games.len());
     Ok(())
 }
 

@@ -1,7 +1,7 @@
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{game_archive::BoardSize, wthor::Error};
+use crate::{database::Database, game_archive::BoardSize, wthor::Error};
 
 const VALID_8X8_MOVES: [u8; 64] = [
     11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38,
@@ -21,9 +21,9 @@ pub fn parse(board_size: BoardSize, game: &[u8]) -> Result<Game, Error> {
         return Err(Error::InvalidSize);
     }
 
-    let tournament_label_number = u16::from_le_bytes(game[0..2].try_into().unwrap());
-    let black_player_number = u16::from_le_bytes(game[2..4].try_into().unwrap());
-    let white_player_number = u16::from_le_bytes(game[4..6].try_into().unwrap());
+    let tournament_index = u16::from_le_bytes(game[0..2].try_into().unwrap());
+    let black_player_index = u16::from_le_bytes(game[2..4].try_into().unwrap());
+    let white_player_index = u16::from_le_bytes(game[4..6].try_into().unwrap());
     let real_score = *game.get(6).unwrap();
     let theoretical_score = *game.get(7).unwrap();
 
@@ -40,9 +40,9 @@ pub fn parse(board_size: BoardSize, game: &[u8]) -> Result<Game, Error> {
     let moves = moves?;
 
     Ok(Game {
-        tournament_label_number,
-        black_player_number,
-        white_player_number,
+        tournament_index,
+        black_player_index,
+        white_player_index,
         real_score,
         theoretical_score,
         moves,
@@ -78,10 +78,42 @@ pub struct Position {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Game {
-    pub tournament_label_number: u16,
-    pub black_player_number: u16,
-    pub white_player_number: u16,
+    /// 1-based index into tournament records. Use `tournament()` to look up the name.
+    pub tournament_index: u16,
+    /// 1-based index into player records. Use `black_player()` to look up the name.
+    pub black_player_index: u16,
+    /// 1-based index into player records. Use `white_player()` to look up the name.
+    pub white_player_index: u16,
+    /// The final score for black (number of discs).
     pub real_score: u8,
+    /// The theoretical score if both players played perfectly from some point.
     pub theoretical_score: u8,
+    /// The sequence of moves played in the game.
     pub moves: Vec<Position>,
+}
+
+impl Game {
+    /// Look up the black player's name from a database.
+    ///
+    /// Returns `None` if the database has no player data or the index is invalid.
+    #[must_use]
+    pub fn black_player<'a>(&self, db: &'a Database) -> Option<&'a str> {
+        db.player(self.black_player_index)
+    }
+
+    /// Look up the white player's name from a database.
+    ///
+    /// Returns `None` if the database has no player data or the index is invalid.
+    #[must_use]
+    pub fn white_player<'a>(&self, db: &'a Database) -> Option<&'a str> {
+        db.player(self.white_player_index)
+    }
+
+    /// Look up the tournament name from a database.
+    ///
+    /// Returns `None` if the database has no tournament data or the index is invalid.
+    #[must_use]
+    pub fn tournament<'a>(&self, db: &'a Database) -> Option<&'a str> {
+        db.tournament(self.tournament_index)
+    }
 }

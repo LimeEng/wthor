@@ -12,6 +12,26 @@
 //!
 //! Solitaire files are currently not supported.
 //!
+//! ## Example
+//!
+//! ```ignore
+//! // Parse games (always available, indices only)
+//! let archive = wthor::parse(game_bytes)?;
+//! println!("Year: {}", archive.metadata.year_of_games);
+//! println!("First game score: {}", archive.games[0].real_score);
+//!
+//! // Optionally load a database for name lookups
+//! let db = wthor::Database::new()
+//!     .with_players(player_bytes)?
+//!     .with_tournaments(tournament_bytes)?;
+//!
+//! for game in &archive.games {
+//!     let black = game.black_player(&db).unwrap_or("Unknown");
+//!     let white = game.white_player(&db).unwrap_or("Unknown");
+//!     println!("{black} vs {white}");
+//! }
+//! ```
+//!
 //! ## Installation
 //!
 //! ```sh
@@ -21,17 +41,43 @@
 //! ```
 //!
 
-mod builder;
-mod enriched;
+mod database;
 mod game;
 mod game_archive;
 mod header;
 mod records;
 mod wthor;
 
-pub use builder::parse;
-pub use enriched::{Archive, Game, Indexed, Named};
-pub use game::Position;
+use game_archive::GameArchive;
+use wthor::WthorFile;
+
+pub use database::Database;
+pub use game::{Game, Position};
 pub use game_archive::{BoardSize, Metadata};
 pub use header::CreationDate;
 pub use wthor::Error;
+
+/// A parsed archive of Othello games.
+pub type Archive = GameArchive;
+
+/// Parse a WTHOR game archive (`.wtb` file).
+///
+/// Returns an archive containing game metadata and a list of games.
+/// Games contain indices into player/tournament records. Use [`Database`]
+/// to look up names by index.
+///
+/// # Errors
+///
+/// Returns an error if the bytes are not a valid WTHOR game archive.
+///
+/// # Example
+///
+/// ```ignore
+/// let archive = wthor::parse(bytes)?;
+/// for game in &archive.games {
+///     println!("Score: {}", game.real_score);
+/// }
+/// ```
+pub fn parse(bytes: &[u8]) -> Result<Archive, Error> {
+    GameArchive::parse(bytes)
+}

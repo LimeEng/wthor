@@ -27,8 +27,4 @@ pub enum Error {
     // Records errors
     RecordNotNullTerminated,
     EncodingNotIso8859_1,
-    // Builder errors
-    IncompleteNameData,
-    InvalidPlayerIndex,
-    InvalidTournamentIndex,
 }

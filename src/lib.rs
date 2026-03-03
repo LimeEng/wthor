@@ -15,21 +15,20 @@
 //! ## Example
 //!
 //! ```ignore
-//! // Parse games (always available, indices only)
-//! let archive = wthor::parse(game_bytes)?;
-//! println!("Year: {}", archive.metadata.year_of_games);
-//! println!("First game score: {}", archive.games[0].real_score);
-//!
-//! // Optionally load a database for name lookups
-//! let db = wthor::Database::new()
-//!     .with_players(player_bytes)?
-//!     .with_tournaments(tournament_bytes)?;
-//!
-//! for game in &archive.games {
-//!     let black = game.black_player(&db).unwrap_or("Unknown");
-//!     let white = game.white_player(&db).unwrap_or("Unknown");
-//!     println!("{black} vs {white}");
+//! // One-shot: parse everything and get enriched records
+//! let records = wthor::parse(game_bytes, player_bytes, tournament_bytes)?;
+//! for record in &records.games {
+//!     println!("{} vs {}", record.black_player, record.white_player);
 //! }
+//!
+//! // Raw path: just moves and scores, ideal for AI training data
+//! let games = wthor::Games::try_from(game_bytes)?;
+//! println!("Year: {}", games.metadata.year_of_games);
+//!
+//! // Selective: parse independently and enrich later
+//! let players = wthor::Players::try_from(player_bytes)?;
+//! let tournaments = wthor::Tournaments::try_from(tournament_bytes)?;
+//! let records = games.enrich(&players, &tournaments)?;
 //! ```
 //!
 //! ## Installation
@@ -41,43 +40,51 @@
 //! ```
 //!
 
-mod database;
 mod game;
 mod game_archive;
+mod game_record;
 mod header;
+mod players;
 mod records;
+mod tournaments;
 mod wthor;
 
-use game_archive::GameArchive;
-use wthor::WthorFile;
-
-pub use database::Database;
 pub use game::{Game, Position};
-pub use game_archive::{BoardSize, Metadata};
+pub use game_archive::{BoardSize, Games, Metadata};
+pub use game_record::{GameRecord, GameRecords};
 pub use header::CreationDate;
+pub use players::Players;
+pub use tournaments::Tournaments;
 pub use wthor::Error;
 
-/// A parsed archive of Othello games.
-pub type Archive = GameArchive;
-
-/// Parse a WTHOR game archive (`.wtb` file).
+/// Parse and enrich a complete set of WTHOR files in one step.
 ///
-/// Returns an archive containing game metadata and a list of games.
-/// Games contain indices into player/tournament records. Use [`Database`]
-/// to look up names by index.
+/// Parses the game archive (`.wtb`), player list (`.jou`), and tournament list
+/// (`.trn`) and returns fully enriched [`GameRecords`] with names resolved.
+///
+/// For the raw path (moves and scores only, no name files), use
+/// [`Games::try_from`] directly.
 ///
 /// # Errors
 ///
-/// Returns an error if the bytes are not a valid WTHOR game archive.
+/// Returns an error if any of the three byte slices are not valid WTHOR files,
+/// or if a game references a player or tournament index that is out of bounds.
 ///
 /// # Example
 ///
 /// ```ignore
-/// let archive = wthor::parse(bytes)?;
-/// for game in &archive.games {
-///     println!("Score: {}", game.real_score);
+/// let records = wthor::parse(game_bytes, player_bytes, tournament_bytes)?;
+/// for record in &records.games {
+///     println!("{} vs {} — {}", record.black_player, record.white_player, record.tournament);
 /// }
 /// ```
-pub fn parse(bytes: &[u8]) -> Result<Archive, Error> {
-    GameArchive::parse(bytes)
+pub fn parse(
+    game_bytes: &[u8],
+    player_bytes: &[u8],
+    tournament_bytes: &[u8],
+) -> Result<GameRecords, Error> {
+    let games = Games::try_from(game_bytes)?;
+    let players = Players::try_from(player_bytes)?;
+    let tournaments = Tournaments::try_from(tournament_bytes)?;
+    games.enrich(&players, &tournaments)
 }

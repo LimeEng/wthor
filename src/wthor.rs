@@ -1,13 +1,4 @@
-/// Parses bytes into one of three representations.
-///
-/// If a solitaire file is detected only the header will be returned.
-#[allow(dead_code, clippy::missing_errors_doc)]
-pub fn parse<W: WthorFile>(bytes: &[u8]) -> Result<W::Output, Error> {
-    W::parse(bytes)
-}
-
-#[allow(clippy::missing_errors_doc)]
-pub trait WthorFile {
+pub(crate) trait WthorFile {
     type Output;
     fn parse(bytes: &[u8]) -> Result<Self::Output, Error>;
 }
@@ -27,4 +18,7 @@ pub enum Error {
     // Records errors
     RecordNotNullTerminated,
     EncodingNotIso8859_1,
+    // Enrichment errors
+    PlayerIndexOutOfBounds,
+    TournamentIndexOutOfBounds,
 }

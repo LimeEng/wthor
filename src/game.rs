@@ -1,7 +1,7 @@
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{database::Database, game_archive::BoardSize, wthor::Error};
+use crate::{game_archive::BoardSize, wthor::Error};
 
 pub fn parse(board_size: BoardSize, game: &[u8]) -> Result<Game, Error> {
     if board_size.record_size_in_bytes() != game.len() {
@@ -78,30 +78,4 @@ pub struct Game {
     pub theoretical_score: u8,
     /// The sequence of moves played in the game.
     pub moves: Vec<Position>,
-}
-
-impl Game {
-    /// Look up the black player's name from a database.
-    ///
-    /// Returns `None` if the database has no player data or the index is invalid.
-    #[must_use]
-    pub fn black_player<'a>(&self, db: &'a Database) -> Option<&'a str> {
-        db.player(self.black_player_index)
-    }
-
-    /// Look up the white player's name from a database.
-    ///
-    /// Returns `None` if the database has no player data or the index is invalid.
-    #[must_use]
-    pub fn white_player<'a>(&self, db: &'a Database) -> Option<&'a str> {
-        db.player(self.white_player_index)
-    }
-
-    /// Look up the tournament name from a database.
-    ///
-    /// Returns `None` if the database has no tournament data or the index is invalid.
-    #[must_use]
-    pub fn tournament<'a>(&self, db: &'a Database) -> Option<&'a str> {
-        db.tournament(self.tournament_index)
-    }
 }

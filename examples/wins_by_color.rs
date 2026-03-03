@@ -11,8 +11,8 @@ struct GameResults {
 fn main() {
     let games = include_bytes!("../wthor-database/WTH_2004.wtb");
 
-    // Parse the game archive
-    let archive = wthor::parse(games).unwrap();
+    // Parse the raw game archive
+    let archive = wthor::Games::try_from(games.as_ref()).unwrap();
 
     let results = archive.games.iter().map(calculate_winner).fold(
         GameResults::default(),

@@ -8,6 +8,8 @@ use crate::{
     wthor::{Error, WthorFile},
 };
 
+use std::convert::TryFrom;
+
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Metadata {
@@ -67,8 +69,16 @@ fn extract_metadata(header: &Header, bytes: &[u8]) -> Result<Metadata, Error> {
     }
 }
 
-impl WthorFile for GameArchive {
-    type Output = GameArchive;
+impl TryFrom<&[u8]> for Games {
+    type Error = Error;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        Games::parse(bytes)
+    }
+}
+
+impl WthorFile for Games {
+    type Output = Games;
 
     fn parse(bytes: &[u8]) -> Result<Self::Output, Error> {
         let (header, bytes) = header::parse_and_split(bytes).ok_or(Error::InvalidHeader)?;
@@ -83,13 +93,13 @@ impl WthorFile for GameArchive {
                 &bytes[start..start + step],
             )?);
         }
-        Ok(GameArchive { metadata, games })
+        Ok(Games { metadata, games })
     }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct GameArchive {
+pub struct Games {
     pub metadata: Metadata,
     pub games: Vec<Game>,
 }
